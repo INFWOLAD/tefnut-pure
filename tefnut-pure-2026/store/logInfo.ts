@@ -1,8 +1,8 @@
 import { create } from 'zustand';
 
 type LogInfoState = {
-  logged: Boolean;
-  setLogged: (logged: Boolean) => void;
+  logged: boolean;
+  setLogged: (logged: boolean) => void;
 };
 export const logInfoStore = create<LogInfoState>((set) => ({
   logged: false,
