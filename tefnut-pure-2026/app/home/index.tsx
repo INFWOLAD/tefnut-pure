@@ -1,4 +1,3 @@
-import { useColorScheme } from 'nativewind'
 import * as React from 'react'
 import { logInfoStore } from '@/store/logInfo'
 import SignInScreen from '@/components/home/loginForm'

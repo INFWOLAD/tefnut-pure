@@ -6,7 +6,6 @@ import { MoonStarIcon, StarIcon, SunIcon } from 'lucide-react-native'
 import { useColorScheme } from 'nativewind'
 import * as React from 'react'
 import { Image, type ImageStyle, View, ScrollView } from 'react-native'
-import { FirstSignInForm } from '@/components/first-sign-form'
 
 const LOGO = {
   light: require('@/assets/images/react-native-reusables-light.png'),

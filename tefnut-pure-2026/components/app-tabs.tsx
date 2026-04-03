@@ -17,7 +17,7 @@ export default function AppTabs() {
         <NativeTabs.Trigger.Icon sf="house.fill" renderingMode="template" />
       </NativeTabs.Trigger>
 
-      <NativeTabs.Trigger name="browser/index">
+      <NativeTabs.Trigger name="browser" role="search">
         <NativeTabs.Trigger.Label>浏览器</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon sf="gear" renderingMode="template" />
       </NativeTabs.Trigger>

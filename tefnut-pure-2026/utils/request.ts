@@ -16,7 +16,7 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 // 创建 axios 实例
 const instance = axios.create({
-  timeout: 10000,
+  timeout: 5000,
   withCredentials: true,
 })
 

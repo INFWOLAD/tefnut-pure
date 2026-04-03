@@ -1,30 +1,36 @@
 import { WebView } from 'react-native-webview'
 import type { WebView as WebViewType } from 'react-native-webview'
 import { useEffect, useRef, useState } from 'react'
-
-interface BrowserSheetProps {
-  catchMagnet: boolean // 抓取磁力推送到btStore
-  defaultUrl: string // 浏览器默认打开地址
-}
+import { View } from 'react-native'
+import type { SearchBarCommands } from 'react-native-screens'
+import { Stack } from 'expo-router'
+import * as SecureStore from 'expo-secure-store'
 
 export function callbackResult(result: boolean | undefined) {
   console.log('Callback result:', result)
 }
 
-export default function BrowserSheet({
-  catchMagnet = false,
-  defaultUrl = 'https://www.bing.com',
-}: BrowserSheetProps) {
+export default function BrowserSheet() {
+  const searchBarRef = useRef<SearchBarCommands | null>(null)
+  const [searchTextNull, setSearchTextNull] = useState(false)
   const webviewRef = useRef<WebViewType>(null)
-  const [canGoBack, setCanGoBack] = useState(false)
-  const [url, setUrl] = useState(defaultUrl)
-  const [browserUrl, setBrowserUrl] = useState(defaultUrl)
+  const [browserUrl, setBrowserUrl] = useState('')
   const [addedUrls, setAddedUrls] = useState<string[]>([])
 
-  // input框回车后，浏览器url被更新，将浏览器url和输入框url解耦
-  function handleUrl() {
-    setBrowserUrl(url)
-  }
+  useEffect(() => {
+    async function getDefaultUrl() {
+      const storedUrl = await SecureStore.getItemAsync('browser_url')
+      if (!storedUrl) {
+        await SecureStore.setItemAsync('browser_url', 'https://www.bing.com')
+        searchBarRef.current?.setText('https://www.bing.com')
+        setBrowserUrl('https://www.bing.com')
+      } else {
+        searchBarRef.current?.setText(storedUrl)
+        setBrowserUrl(storedUrl)
+      }
+    }
+    getDefaultUrl()
+  }, [])
 
   // 将url存入zustand
   function handleMagnet(url: string) {
@@ -37,24 +43,43 @@ export default function BrowserSheet({
   }
 
   return (
-    <WebView
-      ref={webviewRef}
-      style={{ height: 900 }}
-      source={{ uri: browserUrl }}
-      onNavigationStateChange={(navState) => {
-        setCanGoBack(navState.canGoBack)
-        setBrowserUrl(navState.url) // 同步回浏览器实际访问地址
-        setUrl(navState.url) // 同步回input展示地址
-      }}
-      // 仅在磁力模式下推送磁力任务
-      onMessage={(event) => {
-        const href = event.nativeEvent.data
-        console.log('捕获到磁力链接：', href)
-        catchMagnet && handleMagnet(href)
-      }}
-      // 只有ios支持左右滑动手势
-      allowsBackForwardNavigationGestures={true}
-      injectedJavaScript={`
+    <>
+      <Stack.SearchBar
+        ref={searchBarRef}
+        onChangeText={(event) => {
+          setSearchTextNull(event.nativeEvent.text.trim() === '')
+        }}
+        onSearchButtonPress={(event) => {
+          setBrowserUrl(event.nativeEvent.text)
+        }}
+        onBlur={(event) => {
+          if (searchTextNull) {
+            searchBarRef.current?.setText(browserUrl)
+          }
+          console.log('SearchBar blur:')
+        }}
+        onCancelButtonPress={() => {
+          searchBarRef.current?.setText(browserUrl)
+        }}
+      />
+      <View className="mt-safe h-full w-full">
+        <WebView
+          ref={webviewRef}
+          className="mt-safe"
+          source={{ uri: browserUrl }}
+          onNavigationStateChange={(navState) => {
+            searchBarRef.current?.setText(navState.url)
+            setBrowserUrl(navState.url) // 同步回浏览器实际访问地址
+          }}
+          // 仅在磁力模式下推送磁力任务
+          onMessage={(event) => {
+            const href = event.nativeEvent.data
+            console.log('捕获到磁力链接：', href)
+            handleMagnet(href)
+          }}
+          // 只有ios支持左右滑动手势
+          allowsBackForwardNavigationGestures={true}
+          injectedJavaScript={`
           document.addEventListener('click', function(e) {
             const a = e.target.closest('a');
             if (a && a.href.startsWith('magnet:')) {
@@ -69,6 +94,8 @@ export default function BrowserSheet({
             }
           });
         `}
-    />
+        />
+      </View>
+    </>
   )
 }
