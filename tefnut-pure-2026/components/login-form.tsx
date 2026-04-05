@@ -11,7 +11,7 @@ import * as React from 'react'
 import { type TextInput, View } from 'react-native'
 import { request } from '@/utils/request'
 import * as SecureStore from 'expo-secure-store'
-import { logInfoStore } from '@/store/logInfo'
+import { commonStore } from '@/store/commonStore'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { AlertCircleIcon } from 'lucide-react-native'
 import { Skeleton } from '@/components/ui/skeleton'
@@ -29,7 +29,8 @@ export function SignInForm() {
 
   const [errorMsg, setErrorMsg] = React.useState('')
 
-  const setLogged = logInfoStore((state) => state.setLogged)
+  const setLogged = commonStore((state) => state.setLogged)
+  const setLoggedUserInfo = commonStore((state) => state.setLoggedUserInfo)
 
   React.useEffect(() => {
     async function checkLocalLogin() {
@@ -87,9 +88,10 @@ export function SignInForm() {
         specialErr: { keywords: 'Fails.', msg: '请重新输入登录信息' },
       })
       // 无报错存入信息
-      await SecureStore.setItemAsync('bt_username', userNameValue)
-      await SecureStore.setItemAsync('bt_password', passwordValue)
-      await SecureStore.setItemAsync('bt_url', ipValue)
+      await SecureStore.setItemAsync('bt_username', username)
+      await SecureStore.setItemAsync('bt_password', password)
+      await SecureStore.setItemAsync('bt_url', ip)
+      setLoggedUserInfo({ username, url: ip })
       await delay(1000)
       setLogged(true)
       return { status: true, msg: '' }

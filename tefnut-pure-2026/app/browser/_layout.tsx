@@ -6,7 +6,9 @@ export default function SearchLayout() {
       screenOptions={{
         headerLargeTitle: false,
         headerLargeTitleShadowVisible: false,
-        headerBlurEffect: undefined,
+        headerBlurEffect: 'none',
+        headerShadowVisible: true,
+        headerTransparent: true,
         headerStyle: {
           backgroundColor: 'transparent',
         },
