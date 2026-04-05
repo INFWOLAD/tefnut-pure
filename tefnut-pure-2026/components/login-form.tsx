@@ -37,13 +37,21 @@ export function SignInForm() {
       const storedUsername = await SecureStore.getItemAsync('bt_username')
       const storedPassword = await SecureStore.getItemAsync('bt_password')
       const storedUrl = await SecureStore.getItemAsync('bt_url')
-      console.log('本地存储的登录信息', { storedUsername, storedPassword, storedUrl })
+      const storedAutoLogin = await SecureStore.getItemAsync('bt_auto_login')
+      console.log('本地存储的登录信息', {
+        storedUsername,
+        storedPassword,
+        storedUrl,
+        storedAutoLogin,
+      })
 
       if (storedUsername && storedPassword && storedUrl) {
         setIpValue(storedUrl)
         setUserNameValue(storedUsername)
         setPasswordValue(storedPassword)
-        submitAcutal(storedUrl, storedUsername, storedPassword)
+        storedAutoLogin === 'true'
+          ? submitAcutal(storedUrl, storedUsername, storedPassword)
+          : setNologinInfo(true)
       } else {
         setNologinInfo(true)
       }

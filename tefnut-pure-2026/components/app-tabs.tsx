@@ -15,7 +15,7 @@ export default function AppTabs() {
       indicatorColor={colors.primary}
       labelStyle={{ selected: { color: colors.foreground } }}>
       <NativeTabs.Trigger
-        name="home/index"
+        name="home"
         listeners={{
           focus: () => {
             console.log('Home tab focused')
@@ -27,16 +27,25 @@ export default function AppTabs() {
           },
         }}>
         <NativeTabs.Trigger.Label>首页</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="house.fill" renderingMode="template" />
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'house', selected: 'house.fill' }}
+          renderingMode="template"
+        />
       </NativeTabs.Trigger>
 
       <NativeTabs.Trigger name="browser" role="search">
         <NativeTabs.Trigger.Label>浏览器</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="gear" renderingMode="template" />
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'safari', selected: 'safari.fill' }}
+          renderingMode="template"
+        />
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>设置</NativeTabs.Trigger.Label>
-        <NativeTabs.Trigger.Icon sf="gear" renderingMode="template" />
+        <NativeTabs.Trigger.Icon
+          sf={{ default: 'environments', selected: 'environments.fill' }}
+          renderingMode="template"
+        />
       </NativeTabs.Trigger>
     </NativeTabs>
   )

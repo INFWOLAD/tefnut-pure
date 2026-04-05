@@ -9,9 +9,6 @@ import { request } from '@/utils/request'
 import { commonStore } from '@/store/commonStore'
 import * as Notifications from 'expo-notifications'
 import { Skeleton } from '@/components/ui/skeleton'
-export function callbackResult(result: boolean | undefined) {
-  console.log('Callback result:', result)
-}
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({

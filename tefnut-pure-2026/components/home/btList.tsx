@@ -39,17 +39,13 @@ export default function BtList() {
   return (
     <>
       <View className="m-safe flex-1 items-center">
-        {success ? (
-          btList.map((bt) => (
-            <View key={bt.hash} className="mb-4 w-full rounded bg-muted">
-              <View className="flex-row items-center justify-between px-4 py-2">
-                <Text>{bt.name}</Text>
-              </View>
+        {btList.map((bt) => (
+          <View key={bt.hash} className="mb-4 w-full rounded bg-muted">
+            <View className="flex-row items-center justify-between px-4 py-2">
+              <Text>{bt.name}</Text>
             </View>
-          ))
-        ) : (
-          <Text>正在获取数据...{loopEnabled ? '开启' : '关闭'}</Text>
-        )}
+          </View>
+        ))}
       </View>
     </>
   )
