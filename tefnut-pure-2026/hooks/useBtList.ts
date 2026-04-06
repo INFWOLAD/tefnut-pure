@@ -4,7 +4,8 @@ import { homeStore } from '@/store/homeStore'
 import { useState, useEffect, useRef } from 'react'
 export function useBtList() {
   const url = commonStore((state) => state.loggedUserInfo?.url)
-  const loopEnabled = homeStore((state) => state.loopEnabled)
+  const homeOnTab = homeStore((state) => state.homeOnTab)
+  const appOnStage = homeStore((state) => state.appOnStage)
   const [btList, setBtList] = useState<any[]>([])
   const [success, setSuccess] = useState(false)
   const [errCount, setErrCount] = useState(0)
@@ -12,7 +13,7 @@ export function useBtList() {
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inFlightRef = useRef(false)
   const mountedRef = useRef(true)
-  const loopEnabledRef = useRef(loopEnabled)
+  const loopEnabledRef = useRef(homeOnTab && appOnStage)
 
   function clearNextFetch() {
     if (timerRef.current) {
@@ -22,11 +23,11 @@ export function useBtList() {
   }
 
   useEffect(() => {
-    loopEnabledRef.current = loopEnabled
-  }, [loopEnabled])
+    loopEnabledRef.current = homeOnTab && appOnStage
+  }, [homeOnTab, appOnStage])
 
   useEffect(() => {
-    if (!loopEnabled || !url) {
+    if (!homeOnTab || !appOnStage || !url) {
       clearNextFetch()
       setBtList([])
       setSuccess(false)
@@ -70,7 +71,7 @@ export function useBtList() {
     return () => {
       clearNextFetch()
     }
-  }, [loopEnabled, url])
+  }, [homeOnTab, appOnStage, url])
 
   useEffect(() => {
     return () => {

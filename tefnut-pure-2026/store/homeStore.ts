@@ -1,10 +1,14 @@
 import { create } from 'zustand'
 
 type homeState = {
-  loopEnabled: boolean
-  setLoopEnabled: (loopEnabled: boolean) => void
+  appOnStage: boolean
+  homeOnTab: boolean
+  setAppOnStage: (appOnStage: boolean) => void
+  setHomeOnTab: (homeOnTab: boolean) => void
 }
 export const homeStore = create<homeState>((set) => ({
-  loopEnabled: true,
-  setLoopEnabled: (loopEnabled) => set({ loopEnabled }),
+  appOnStage: true,
+  homeOnTab: false,
+  setAppOnStage: (appOnStage) => set({ appOnStage }),
+  setHomeOnTab: (homeOnTab) => set({ homeOnTab }),
 }))

@@ -1,4 +1,4 @@
-import { AppState, View } from 'react-native'
+import { AppState, View, ScrollView } from 'react-native'
 import { use, useEffect, useRef } from 'react'
 import { Button } from '@/components/ui/button'
 import { Text } from '@/components/ui/text'
@@ -8,8 +8,7 @@ import { commonStore } from '@/store/commonStore'
 
 export default function BtList() {
   const appState = useRef(AppState.currentState)
-  const loopEnabled = homeStore((state) => state.loopEnabled)
-  const setLoopEnabled = homeStore((state) => state.setLoopEnabled)
+  const setAppOnStage = homeStore((state) => state.setAppOnStage)
   const setLogged = commonStore((state) => state.setLogged)
   const { btList, success, errCount } = useBtList()
 
@@ -17,12 +16,12 @@ export default function BtList() {
     const sub = AppState.addEventListener('change', (nextState) => {
       if (appState.current === 'active' && nextState !== 'active') {
         console.log('进入后台')
-        setLoopEnabled(false)
+        setAppOnStage(false)
       }
 
       if (appState.current !== 'active' && nextState === 'active') {
         console.log('回到前台')
-        setLoopEnabled(true)
+        setAppOnStage(true)
       }
       appState.current = nextState
     })
@@ -37,16 +36,21 @@ export default function BtList() {
   }, [errCount])
 
   return (
-    <>
-      <View className="m-safe flex-1 items-center">
+    <ScrollView
+      keyboardShouldPersistTaps="handled"
+      contentContainerClassName="sm:flex-1  justify-center p-4 "
+      keyboardDismissMode="interactive">
+      <View className="m-safe w-full max-w-sm">
         {btList.map((bt) => (
-          <View key={bt.hash} className="mb-4 w-full rounded bg-muted">
+          <View key={bt.hash} className="mb-4 w-full rounded-[32px] bg-border px-5">
             <View className="flex-row items-center justify-between px-4 py-2">
-              <Text>{bt.name}</Text>
+              <Text className="flex-1" numberOfLines={1} ellipsizeMode="tail">
+                {bt.name}
+              </Text>
             </View>
           </View>
         ))}
       </View>
-    </>
+    </ScrollView>
   )
 }

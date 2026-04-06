@@ -7,8 +7,7 @@ import { homeStore } from '@/store/homeStore'
 export default function AppTabs() {
   const scheme = useColorScheme()
   const colors = THEME[scheme === 'dark' ? 'dark' : 'light']
-  const loopEnabled = homeStore((state) => state.loopEnabled)
-  const setLoopEnabled = homeStore((state) => state.setLoopEnabled)
+  const setHomeOnTab = homeStore((state) => state.setHomeOnTab)
   return (
     <NativeTabs
       backgroundColor={colors.background}
@@ -19,11 +18,11 @@ export default function AppTabs() {
         listeners={{
           focus: () => {
             console.log('Home tab focused')
-            setLoopEnabled(true)
+            setHomeOnTab(true)
           },
           blur: () => {
             console.log('Home tab blurred')
-            setLoopEnabled(false)
+            setHomeOnTab(false)
           },
         }}>
         <NativeTabs.Trigger.Label>首页</NativeTabs.Trigger.Label>
