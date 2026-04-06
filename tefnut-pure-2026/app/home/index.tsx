@@ -8,11 +8,7 @@ export default function Screen() {
   return (
     <>
       {!logged && <SignInScreen />}
-      {logged && (
-        <>
-          <BtList />
-        </>
-      )}
+      {logged && <BtList />}
     </>
   )
 }

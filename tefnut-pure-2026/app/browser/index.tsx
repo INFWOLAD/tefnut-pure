@@ -25,12 +25,15 @@ export default function BrowserSheet() {
   const [loading, setLoading] = useState(false)
   const [firstReady, setFirstReady] = useState(false)
   const [browserUrl, setBrowserUrl] = useState('')
+  const browserUrlInStore = commonStore((state) => state.browserUrl)
+  const setBrowserUrlInStore = commonStore((state) => state.setBrowserUrl)
   const [addedUrls, setAddedUrls] = useState<string[]>([])
   const loggedUserInfo = commonStore((state) => state.loggedUserInfo)
 
   useEffect(() => {
     async function getDefaultUrl() {
       const storedUrl = await SecureStore.getItemAsync('browser_url')
+      setBrowserUrlInStore(storedUrl || 'https://www.bing.com')
       if (!storedUrl) {
         await SecureStore.setItemAsync('browser_url', 'https://www.bing.com')
         searchBarRef.current?.setText('https://www.bing.com')
@@ -39,11 +42,17 @@ export default function BrowserSheet() {
         searchBarRef.current?.setText(storedUrl)
         setBrowserUrl(storedUrl)
       }
-      // TODO: 调试用
-      setBrowserUrl('https://教父.com')
     }
     getDefaultUrl()
   }, [])
+
+  useEffect(() => {
+    if (browserUrlInStore && browserUrlInStore !== browserUrl) {
+      setBrowserUrl(browserUrlInStore)
+      searchBarRef.current?.setText(browserUrlInStore)
+      webviewRef.current?.reload()
+    }
+  }, [browserUrlInStore])
 
   // 将url存入zustand
   async function handleMagnet(url: string) {
