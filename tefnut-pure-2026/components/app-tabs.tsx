@@ -42,7 +42,7 @@ export default function AppTabs() {
       <NativeTabs.Trigger name="settings">
         <NativeTabs.Trigger.Label>设置</NativeTabs.Trigger.Label>
         <NativeTabs.Trigger.Icon
-          sf={{ default: 'environments', selected: 'environments.fill' }}
+          sf={{ default: 'gearshape', selected: 'gearshape.fill' }}
           renderingMode="template"
         />
       </NativeTabs.Trigger>

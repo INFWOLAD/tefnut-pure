@@ -176,6 +176,8 @@ export default function BrowserSheet() {
             console.log('捕获到磁力链接：', href)
             handleMagnet(href)
           }}
+          // webview共享cookie到全局，用于NitroCookies管理
+          sharedCookiesEnabled={true}
           // 只有ios支持左右滑动手势
           allowsBackForwardNavigationGestures={true}
           injectedJavaScript={`

@@ -7,8 +7,10 @@ export function useBtList() {
   const homeOnTab = homeStore((state) => state.homeOnTab)
   const appOnStage = homeStore((state) => state.appOnStage)
   const [btList, setBtList] = useState<any[]>([])
+  const [btTotalInfo, setBtTotalInfo] = useState<any>({})
   const [success, setSuccess] = useState(false)
   const [errCount, setErrCount] = useState(0)
+  const [manualRefresh, setManualRefresh] = useState(0)
 
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const inFlightRef = useRef(false)
@@ -41,19 +43,21 @@ export function useBtList() {
       inFlightRef.current = true
       try {
         const response = await request({
-          url: `${url}/api/v2/torrents/info`,
+          url: `${url}/api/v2/sync/maindata`,
           method: 'POST',
           withOutLog: true,
         })
+        const btlistTmp = Object.values(response.torrents || {})
         if (!mountedRef.current) return
-        setBtList(Array.isArray(response) ? response : [])
+        setBtList(btlistTmp)
+        setBtTotalInfo(response.server_state || {})
         setSuccess(true)
         setErrCount(0)
         console.log('Fetched torrents, time:', new Date().toLocaleTimeString())
       } catch (error) {
         if (!mountedRef.current) return
         console.log('Error fetching torrents:', error)
-        setBtList([])
+        setBtTotalInfo({ connection_status: `retrying...(${errCount})` })
         setSuccess(false)
         setErrCount((prev) => prev + 1)
       } finally {
@@ -71,7 +75,7 @@ export function useBtList() {
     return () => {
       clearNextFetch()
     }
-  }, [homeOnTab, appOnStage, url])
+  }, [homeOnTab, appOnStage, url, manualRefresh])
 
   useEffect(() => {
     return () => {
@@ -80,5 +84,11 @@ export function useBtList() {
     }
   }, [])
 
-  return { btList, success, errCount }
+  function refetchBtList() {
+    setTimeout(() => {
+      setManualRefresh((prev) => prev + 1)
+    }, 1000)
+  }
+
+  return { btList, btTotalInfo, success, errCount, refetchBtList }
 }

@@ -114,7 +114,7 @@ export function SignInForm() {
 
   return (
     <>
-      <View className="px-4" style={{ height: 100 }}>
+      <View className="px-4" style={{ height: 80 }}>
         <Alert
           variant="destructive"
           style={{ display: errorMsg ? 'flex' : 'none' }}
@@ -217,7 +217,7 @@ export function SignInForm() {
             </View>
             <View className="flex-row items-center">
               <Separator className="flex-1" />
-              <Text className="px-4 text-sm text-muted-foreground">tefnut</Text>
+              <Text className="px-4 text-sm text-muted-foreground">Tefnut</Text>
               <Separator className="flex-1" />
             </View>
           </CardContent>

@@ -21,6 +21,7 @@ import { request } from '@/utils/request'
 import * as Application from 'expo-application'
 import { Linking } from 'react-native'
 import NitroCookies from 'react-native-nitro-cookies'
+import Constants from 'expo-constants'
 
 export default function SettingsScreen() {
   const loggedUserInfo = commonStore((state) => state.loggedUserInfo)
@@ -162,9 +163,15 @@ export default function SettingsScreen() {
                 text: '确定',
                 style: 'destructive',
                 onPress: async () => {
-                  // TODO: expo go 无法使用原生模块，需等发布后测试此功能
-                  // const allCookies = await NitroCookies.clearAll()
-                  // console.log(allCookies)
+                  console.log(Constants.executionEnvironment)
+                  if (Constants.executionEnvironment === 'storeClient') {
+                    Alert.alert('清空异常', '当前环境不支持清空Cookie')
+                  } else {
+                    // expo go 无法使用原生模块，需要在真机环境下测试或npx expo run:ios
+                    // const allCookies = await NitroCookies.getAll()
+                    // console.log(allCookies)
+                    await NitroCookies.clearAll()
+                  }
                 },
               },
             ])
@@ -178,7 +185,7 @@ export default function SettingsScreen() {
       <View className="mb-4 w-full rounded-[32px] bg-border px-5">
         <View className="flex-row items-center gap-3 py-3">
           <Icon as={Info} size={20} />
-          <Text className="text-lg">关于</Text>
+          <Text className="text-lg">版本信息</Text>
           <Text className="ml-auto text-muted-foreground">{appVersion}</Text>
         </View>
         <Separator className="ml-8 w-auto bg-ring/40" />
