@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, View, Switch, Alert, Platform } from 'react-native'
+import { Pressable, ScrollView, View, Switch, Alert } from 'react-native'
 import { Text } from '@/components/ui/text'
 import { Separator } from '@/components/ui/separator'
 import { Icon } from '@/components/ui/icon'
@@ -20,7 +20,6 @@ import * as React from 'react'
 import { request } from '@/utils/request'
 import * as Application from 'expo-application'
 import { Linking } from 'react-native'
-import NitroCookies from 'react-native-nitro-cookies'
 import Constants from 'expo-constants'
 
 export default function SettingsScreen() {
@@ -88,6 +87,22 @@ export default function SettingsScreen() {
         },
       },
     ])
+  }
+
+  async function handleClearCookie() {
+    // Expo Go does not provide this native module.
+    if (Constants.expoGoConfig) {
+      Alert.alert('清空异常', '当前 Expo Go 环境不支持清空Cookie')
+      return
+    }
+    try {
+      const { default: NitroCookies } = await import('react-native-nitro-cookies')
+      await NitroCookies.clearAll()
+      Alert.alert('清空成功', '浏览器Cookie已清空')
+    } catch (error) {
+      console.log(error)
+      Alert.alert('清空异常', '当前环境不支持清空Cookie')
+    }
   }
 
   return (
@@ -162,17 +177,7 @@ export default function SettingsScreen() {
               {
                 text: '确定',
                 style: 'destructive',
-                onPress: async () => {
-                  console.log(Constants.executionEnvironment)
-                  if (Constants.executionEnvironment === 'storeClient') {
-                    Alert.alert('清空异常', '当前环境不支持清空Cookie')
-                  } else {
-                    // expo go 无法使用原生模块，需要在真机环境下测试或npx expo run:ios
-                    // const allCookies = await NitroCookies.getAll()
-                    // console.log(allCookies)
-                    await NitroCookies.clearAll()
-                  }
-                },
+                onPress: handleClearCookie,
               },
             ])
           }}>

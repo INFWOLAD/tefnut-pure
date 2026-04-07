@@ -1,4 +1,4 @@
-import { AppState, View, ScrollView, Pressable, Alert } from 'react-native'
+import { AppState, View, ScrollView, Pressable, Alert, type AlertButton } from 'react-native'
 import { use, useEffect, useRef } from 'react'
 import { Progress } from '@/components//ui/progress'
 import { Text } from '@/components/ui/text'
@@ -10,12 +10,11 @@ import { Icon } from '@/components/ui/icon'
 import {
   ArrowDown,
   ArrowDownCircle,
+  ArrowRightCircle,
   ArrowUp,
+  ArrowUpCircle,
+  FileScan,
   Link,
-  Pause,
-  Play,
-  SaveAll,
-  Trash2,
 } from 'lucide-react-native'
 import { request } from '@/utils/request'
 
@@ -61,69 +60,81 @@ export default function BtList() {
 
   useEffect(() => {
     if (errCount >= 5) {
-      console.log('连续5次请求失败，停止轮询')
+      console.log('连续5次请求失败, 停止轮询')
       setLogged(false)
     }
   }, [errCount])
 
-  async function pauseBt(hash: string) {
+  async function handleBtAction(hash: string, action: string, Ext?: string) {
     try {
       const res = await request({
-        url: `${url}/api/v2/torrents/pause`,
-        data: `hashes=${hash}`,
+        url: `${url}/api/v2/torrents/${action}`,
+        data: `hashes=${hash}${Ext}`,
         method: 'POST',
         withOutLog: false,
       })
-      console.log('暂停/继续任务响应:', res)
       refetchBtList()
     } catch (error) {
-      console.error('暂停任务失败:', error)
+      console.error('操作失败:', error)
     }
   }
-  async function resumeBt(hash: string) {
-    try {
-      const res = await request({
-        url: `${url}/api/v2/torrents/resume`,
-        data: `hashes=${hash}`,
-        method: 'POST',
-        withOutLog: false,
+
+  function actionListBtn(btState: string, hash: string): AlertButton[] {
+    const actionButtons: AlertButton[] = [{ text: '取消', style: 'cancel' }]
+
+    if (btState === 'downloading') {
+      actionButtons.push({
+        text: '暂停下载',
+        onPress: () => handleBtAction(hash, 'pause'),
       })
-      console.log('暂停/继续任务响应:', res)
-      refetchBtList()
-    } catch (error) {
-      console.error('继续任务失败:', error)
-    }
-  }
-  async function deleteBt(hash: string) {
-    try {
-      const res = await request({
-        url: `${url}/api/v2/torrents/delete`,
-        data: `hashes=${hash}&deleteFiles=true`,
-        method: 'POST',
-        withOutLog: false,
+    } else if (btState === 'pausedDL') {
+      actionButtons.push({
+        text: '继续下载',
+        onPress: () => handleBtAction(hash, 'resume'),
       })
-      console.log('删除任务响应:', res)
-      refetchBtList()
-    } catch (error) {
-      console.error('删除任务失败:', error)
     }
+    const otherActions: AlertButton[] = [
+      {
+        text: '重新检查',
+        onPress: () => handleBtAction(hash, 'recheck'),
+      },
+      {
+        text: '重新播报',
+        onPress: () => handleBtAction(hash, 'reannounce'),
+      },
+      {
+        text: '删除任务',
+        style: 'destructive',
+        onPress: () => {
+          Alert.alert('确认删除', '删除将同步删除本地文件', [
+            { text: '取消', style: 'cancel' },
+            {
+              text: '删除',
+              style: 'destructive',
+              onPress: () => handleBtAction(hash, 'delete', '&deleteFiles=true'),
+            },
+          ])
+        },
+      },
+    ]
+    actionButtons.push(...otherActions)
+    return actionButtons
   }
 
   return (
     <ScrollView
       keyboardShouldPersistTaps="handled"
-      contentContainerClassName="sm:flex-1 m-safe justify-center px-4 "
+      contentContainerClassName="sm:flex-1 m-safe justify-center px-4"
       keyboardDismissMode="interactive">
-      <View className="mb-4 w-full flex-row items-center justify-center gap-4">
+      <View className="mb-4 w-full flex-row items-center justify-around gap-4">
         <View className="flex-row items-center gap-2">
-          <Icon as={Link} size={16} />
+          <Icon as={Link} size={12} />
           <Text className="text-[12px] text-muted-foreground">
-            {btTotalInfo?.connection_status}
+            {btTotalInfo?.connection_status
+              ? btTotalInfo?.connection_status.toUpperCase()
+              : 'UNKNOWN'}{' '}
+            [{btList?.length || 0}]
           </Text>
-        </View>
-        <View className="flex-row items-center gap-2">
-          <Icon as={SaveAll} size={16} />
-          <Text className="text-[12px] text-muted-foreground">{btList?.length || 0}</Text>
         </View>
         <View className="flex-row items-center gap-2">
           <Icon as={ArrowDownCircle} size={12} />
@@ -131,13 +142,26 @@ export default function BtList() {
             {((btTotalInfo?.dl_info_speed || 0) / 1024 / 1024)?.toFixed(2)} MB/s
           </Text>
         </View>
+        <View className="flex-row items-center gap-2">
+          <Icon as={ArrowUpCircle} size={12} />
+          <Text className="text-[12px] text-muted-foreground">
+            {((btTotalInfo?.up_info_speed || 0) / 1024 / 1024)?.toFixed(2)} MB/s
+          </Text>
+        </View>
       </View>
       {btList && btList.length > 0 && (
         <View className="w-full max-w-sm">
           {btList.map((bt) => (
-            <View
+            <Pressable
               key={bt.infohash_v2 || bt.infohash_v1}
-              className="bo mb-4 w-full rounded-[28px] bg-muted p-4">
+              className="bo mb-4 w-full rounded-[28px] bg-muted p-4"
+              onPress={() => {
+                Alert.alert(
+                  '当前种子',
+                  `${bt.name}`,
+                  actionListBtn(bt.state, bt.infohash_v2 || bt.infohash_v1)
+                )
+              }}>
               <Text className="text-[12px] text-muted-foreground">
                 {new Date(bt.added_on * 1000).toLocaleString()}
               </Text>
@@ -190,43 +214,17 @@ export default function BtList() {
                     </View>
                   </View>
                 </View>
-                <View className="ml-auto mr-2 flex-row justify-center gap-2">
-                  {bt.state === 'downloading' && (
-                    <Pressable
-                      className="h-[30px] w-[30px] items-center justify-center rounded-lg border border-primary/50"
-                      onPress={() => pauseBt(bt.infohash_v2 || bt.infohash_v1)}>
-                      <Icon as={Pause} className="text-primary/70" size={20} />
-                    </Pressable>
-                  )}
-                  {bt.state === 'pausedDL' && (
-                    <Pressable
-                      className="h-[30px] w-[30px] items-center justify-center rounded-lg border border-primary/50"
-                      onPress={() => resumeBt(bt.infohash_v2 || bt.infohash_v1)}>
-                      <Icon as={Play} className="text-primary/70" size={20} />
-                    </Pressable>
-                  )}
-                  <Pressable
-                    className="h-[30px] w-[30px] items-center justify-center rounded-lg border border-destructive/50"
-                    onPress={() => {
-                      Alert.alert('确认删除', '删除将同步删除本地文件', [
-                        { text: '取消', style: 'cancel' },
-                        {
-                          text: '删除',
-                          style: 'destructive',
-                          onPress: () => deleteBt(bt.infohash_v2 || bt.infohash_v1),
-                        },
-                      ])
-                    }}>
-                    <Icon as={Trash2} className="text-destructive/70" size={20} />
-                  </Pressable>
+                <View className="ml-auto flex-row justify-center gap-4">
+                  <Icon as={ArrowRightCircle} size={20} className="text-primary/70" />
                 </View>
               </View>
-            </View>
+            </Pressable>
           ))}
         </View>
       )}
       {!btList || btList.length === 0 ? (
-        <View className="m-safe w-full max-w-sm items-center justify-center gap-4 rounded-[28px] p-4">
+        <View className="w-full items-center justify-center gap-4 pt-60">
+          <Icon as={FileScan} size={48} className="text-muted-foreground/70" />
           <Text className="text-sm text-muted-foreground">暂无磁力链接任务</Text>
         </View>
       ) : null}

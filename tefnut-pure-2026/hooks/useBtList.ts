@@ -66,7 +66,7 @@ export function useBtList() {
         if (!mountedRef.current || !loopEnabledRef.current) return
         timerRef.current = setTimeout(() => {
           void fetch()
-        }, 5000)
+        }, 3000)
       }
     }
 
