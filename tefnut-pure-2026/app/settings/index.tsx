@@ -24,11 +24,20 @@ import { Linking } from 'react-native'
 export default function SettingsScreen() {
   const loggedUserInfo = commonStore((state) => state.loggedUserInfo)
   const setLoggedUserInfo = commonStore((state) => state.setLoggedUserInfo)
+  const logged: boolean = commonStore((state) => state.logged)
   const setLogged = commonStore((state) => state.setLogged)
   const browserUrl = commonStore((state) => state.browserUrl)
   const setBrowserUrl = commonStore((state) => state.setBrowserUrl)
   const [autoLogin, setAutoLogin] = React.useState(false)
   const appVersion = `${Application.nativeApplicationVersion} (${Application.nativeBuildVersion})`
+
+  React.useEffect(() => {
+    async function fetchAutoLogin() {
+      const storedAutoLogin = await SecureStore.getItemAsync('bt_auto_login')
+      setAutoLogin(storedAutoLogin === 'true')
+    }
+    fetchAutoLogin()
+  }, [])
 
   async function handleSetBrowserUrl() {
     const storedBrowserUrl = await SecureStore.getItemAsync('browser_url')
@@ -36,12 +45,9 @@ export default function SettingsScreen() {
 
     Alert.prompt(
       '默认网址',
-      '请输入默认网址, 留空则不做改变',
+      'e.g., https://www.bing.com',
       async (value) => {
-        const nextBrowserUrl = value?.trim()
-        if (!nextBrowserUrl) {
-          return
-        }
+        const nextBrowserUrl = value ? value?.trim() : 'https://www.bing.com'
         await SecureStore.setItemAsync('browser_url', nextBrowserUrl)
         setBrowserUrl(nextBrowserUrl)
       },
@@ -92,6 +98,7 @@ export default function SettingsScreen() {
     try {
       const { default: NitroCookies } = await import('react-native-nitro-cookies')
       await NitroCookies.clearAll()
+      setLogged(false) // 同步关闭登录状态，防止cookie被清空后继续请求导致错误
       Alert.alert('清空成功', '浏览器Cookie已清空')
     } catch (error) {
       console.log(error)
@@ -137,23 +144,27 @@ export default function SettingsScreen() {
             }}
           />
         </View>
-        <Separator className="ml-8 w-auto bg-ring/40" />
-        <Pressable
-          className="flex-row items-center gap-3 py-3"
-          onPress={() => {
-            Alert.alert('确认退出', '退出登录会同步关闭自动登录,重新登录后可再次开启', [
-              { text: '取消', style: 'cancel' },
-              {
-                text: '确定',
-                style: 'destructive',
-                onPress: handleLogout,
-              },
-            ])
-          }}>
-          <Icon as={LogOut} size={20} />
-          <Text className="text-lg">退出登录</Text>
-          <Icon as={ChevronRight} size={24} className="ml-auto text-muted-foreground" />
-        </Pressable>
+        {logged && (
+          <>
+            <Separator className="ml-8 w-auto bg-ring/40" />
+            <Pressable
+              className="flex-row items-center gap-3 py-3"
+              onPress={() => {
+                Alert.alert('确认退出', '退出登录会同步关闭自动登录,重新登录后可再次开启', [
+                  { text: '取消', style: 'cancel' },
+                  {
+                    text: '确定',
+                    style: 'destructive',
+                    onPress: handleLogout,
+                  },
+                ])
+              }}>
+              <Icon as={LogOut} size={20} />
+              <Text className="text-lg">退出登录</Text>
+              <Icon as={ChevronRight} size={24} className="ml-auto text-muted-foreground" />
+            </Pressable>
+          </>
+        )}
       </View>
       <Text className="mb-2 ml-5 font-bold text-muted-foreground">浏览器</Text>
       <View className="mb-4 w-full rounded-[32px] bg-border px-5">

@@ -2,20 +2,16 @@
   "expo": {
     "name": "Tefnut",
     "slug": "Tefnut",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "tefnut-pure",
     "userInterfaceStyle": "automatic",
-    "splash": {
-      "image": "./assets/images/splash.png",
-      "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
-    },
     "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.cosz.tefnut-pure"
+      "bundleIdentifier": "com.cosz.tefnut-pure",
+      "buildNumber": "0408152"
     },
     "android": {
       "adaptiveIcon": {
