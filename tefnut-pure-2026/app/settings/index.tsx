@@ -20,7 +20,6 @@ import * as React from 'react'
 import { request } from '@/utils/request'
 import * as Application from 'expo-application'
 import { Linking } from 'react-native'
-import Constants from 'expo-constants'
 
 export default function SettingsScreen() {
   const loggedUserInfo = commonStore((state) => state.loggedUserInfo)
@@ -90,11 +89,6 @@ export default function SettingsScreen() {
   }
 
   async function handleClearCookie() {
-    // Expo Go does not provide this native module.
-    if (Constants.expoGoConfig) {
-      Alert.alert('清空异常', '当前 Expo Go 环境不支持清空Cookie')
-      return
-    }
     try {
       const { default: NitroCookies } = await import('react-native-nitro-cookies')
       await NitroCookies.clearAll()

@@ -1,23 +1,13 @@
 import { WebView } from 'react-native-webview'
 import type { WebView as WebViewType } from 'react-native-webview'
 import { use, useEffect, useRef, useState } from 'react'
-import { View } from 'react-native'
+import { Alert, View } from 'react-native'
 import type { SearchBarCommands } from 'react-native-screens'
 import { Stack } from 'expo-router'
 import * as SecureStore from 'expo-secure-store'
 import { request } from '@/utils/request'
 import { commonStore } from '@/store/commonStore'
-import * as Notifications from 'expo-notifications'
 import { Skeleton } from '@/components/ui/skeleton'
-
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldPlaySound: false,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: false, // 不在通知中心显示
-  }),
-})
 
 export default function BrowserSheet() {
   const searchBarRef = useRef<SearchBarCommands | null>(null)
@@ -58,33 +48,15 @@ export default function BrowserSheet() {
   async function handleMagnet(url: string) {
     // 防止重复添加相同的磁力链接
     if (addedUrls.includes(url)) {
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: '重复任务',
-          body: '任务已存在，无需重复添加',
-        },
-        trigger: null,
-      })
+      Alert.alert('提示', '该磁力链接已添加')
       return
     }
     setAddedUrls((prev) => [...prev, url])
     const res = await addTask(url)
     if (res.success) {
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: '添加成功',
-          body: '任务可在首页查看进度',
-        },
-        trigger: null,
-      })
+      Alert.alert('提示', '任务添加成功')
     } else {
-      Notifications.scheduleNotificationAsync({
-        content: {
-          title: '添加失败',
-          body: res.msg || '磁力链接添加失败',
-        },
-        trigger: null,
-      })
+      Alert.alert('提示', res.msg || '磁力链接添加失败')
     }
   }
 
