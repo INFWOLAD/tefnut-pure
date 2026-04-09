@@ -40,7 +40,7 @@ export default function BtList() {
   const url = commonStore((state) => state.loggedUserInfo?.url)
   const setAppOnStage = homeStore((state) => state.setAppOnStage)
   const setLogged = commonStore((state) => state.setLogged)
-  const { btList, btTotalInfo, success, errCount, refetchBtList } = useBtList()
+  const { btList, btTotalInfo, errCount, refetchBtList } = useBtList()
 
   useEffect(() => {
     const sub = AppState.addEventListener('change', (nextState) => {
@@ -69,7 +69,7 @@ export default function BtList() {
     try {
       const res = await request({
         url: `${url}/api/v2/torrents/${action}`,
-        data: `hashes=${hash}${Ext}`,
+        data: `hashes=${hash}${Ext ? Ext : ''}`,
         method: 'POST',
         withOutLog: false,
       })
@@ -150,7 +150,7 @@ export default function BtList() {
         </View>
       </View>
       {btList && btList.length > 0 && (
-        <View className="w-full max-w-sm">
+        <View className="mb-safe w-full max-w-sm">
           {btList.map((bt) => (
             <Pressable
               key={bt.infohash_v2 || bt.infohash_v1}
@@ -163,7 +163,7 @@ export default function BtList() {
                 )
               }}>
               <Text className="text-[12px] text-muted-foreground">
-                {new Date(bt.added_on * 1000).toLocaleString()}
+                {`${new Date(bt.added_on * 1000).toLocaleString()} - ${bt.num_seeds} seeds`}
               </Text>
               <Text className="flex-1 flex-row text-[16px]" numberOfLines={1} ellipsizeMode="tail">
                 {bt.name}
@@ -193,7 +193,7 @@ export default function BtList() {
                             ? 'default'
                             : 'outline'
                       }
-                      className="mr-1 h-[14px] px-1 py-0">
+                      className={`mr-1 h-[14px] px-1 py-0 ${bt.state === 'downloading' ? 'bg-green-500/20 text-green-500' : ''}`}>
                       <Text className="text-[10px]">{stateMap[bt.state] || bt.state}</Text>
                     </Badge>
                     <View

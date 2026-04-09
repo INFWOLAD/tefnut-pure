@@ -11,7 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cosz.tefnut-pure",
-      "buildNumber": "0408152"
+      "buildNumber": "0409101"
     },
     "android": {
       "adaptiveIcon": {
