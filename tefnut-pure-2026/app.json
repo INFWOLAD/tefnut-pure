@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Tefnut",
-    "slug": "Tefnut",
+    "slug": "tefnut-pure",
     "version": "1.0.2",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -11,7 +11,10 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.cosz.tefnut-pure",
-      "buildNumber": "0409101"
+      "buildNumber": "0409101",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false
+      }
     },
     "android": {
       "adaptiveIcon": {
@@ -27,6 +30,13 @@
     "plugins": ["expo-router", "expo-secure-store"],
     "experiments": {
       "typedRoutes": true
-    }
+    },
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "83c9417c-7aca-445a-b21a-17fa506b6b5a"
+      }
+    },
+    "owner": "cosz"
   }
 }
